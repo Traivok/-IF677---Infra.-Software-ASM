@@ -17,35 +17,6 @@ start:
 
 	jmp done
 
-readstr: ;;; ERROR - input not stored - ERROR ;;; 
-
-	.start:
-		mov ah, 0 ;; read keyboard
-		int 16h ;; keyboard interrupt
-			
-		cmp al, 0xd
-		je .done ;; if (al == 'enter') return
-		jmp .output ;; else print last input 
-
-		stosb ;; store al (key stroke) to di (arg passed)
-
-	.output:
-		mov ah, 0xe ;; char print
-		mov bh, 0 ;; page number
-		mov bl, 0xf ;; white color
-		int 10h ;; visual output
-
-		jmp .start
-
-	.done:
-		
-		call print_new_line
-
-		mov al, 0 ;; end of string
-		lodsb ;; store '\0'
-
-		ret
-
 printstr:	
 	.start:
 
@@ -63,7 +34,6 @@ printstr:
 			jmp .start
 
 		.done:
-			call print_new_line
 			ret
 
 print_new_line:
