@@ -1,45 +1,29 @@
 org 0x7c00
 jmp 0x0000:start
 
-input_msg db "Your Text: ", 0
 num times 8 db 0
-var times 8 db 0
 	
 start:
 	xor ax, ax		; init
 	mov ds, ax 		; init
-	mov es, ax 		; init
+	mov es, ax 		; init	
 
-;;; <READ AND PRINT TEST> ;;;
-	mov si, input_msg	; print input msg
-	call printstr
+	mov si, num	
+	call readvstr
 	
-	mov di, var		; pass var as arg to readstr
-	call readstr
-
-	mov si, var		; pass var as arg to printstr
+	mov edx, num
+	add eax, '0'
+	mov [si], eax
+	
 	call printstr
 	call println
-;;; <READ AND PRINT TEST> ;;;
-	
-;;; <READ VERBOSELY TEST> ;;;
-	mov di, num		; pass num as arg to readvstr	
-	call readvstr 		; call read(num1)
-	
-	mov si, num
-	call printstr
-	call println
-;;; <\READ VERBOSELY TEST> ;;;
-
-;;; <VARIABLE CONTENT TEST> ;;;
-	mov si, var
-	call printstr
-	call println
-;;; <\VARIABLE CONTENT TEST> ;;;
 	
 	jmp done
 
-;;; print string from si
+
+;;; print string
+;; @param: use si to print
+;; @reg: ax, bx
 printstr:
 	.start:
 
@@ -58,7 +42,9 @@ printstr:
 		.done:
 			ret
 
-;;; read string from di
+;;; read string
+;; @param: use di to read
+;; @reg: ax
 readstr:
 	.read:
 		mov ah, 0 	; read keystroke
@@ -76,6 +62,8 @@ readstr:
 		ret
 
 ;;; read (verbosely) string from di and print char by char
+;; @param: use di to read 	
+;; @reg: ax, bx
 readvstr:		
 	.read:
 		mov ah, 0 	; read keystroke
@@ -103,6 +91,7 @@ readvstr:
 		ret 		; return
 	
 ;;; print line (\n)
+;;; @reg: ax, bx
 println:
 	mov ah, 0xe ; char print
 	mov bh, 0 ; page number
@@ -118,6 +107,31 @@ println:
 
 	ret
 
+;;; string to integer -- int atoi(string*) 
+;;; @param use dx as string pointer
+;;; @return ax as int result
+;;; @reg: eax, ecx, edx
+atoi:
+	xor eax, eax 		; zero a "result so far"
+.top:
+	movzx ecx, byte [edx] 	; get a character
+	inc edx 		; ready for next one
+	
+	cmp ecx, '0'
+	jb .done 		; if unsigned (ecx < '0') then, invalid
+
+	cmp ecx, '9'		; if unsigned (ecx > '9') then, invalid
+	ja .done
+	
+	sub ecx, '0'		; "convert" character to number
+	imul eax, 10		; multiply "result so far" by ten
+	add eax, ecx		; add in current digit
+
+	jmp .top		; until done
+	
+.done:
+	ret
+	
 done:
 	jmp $ 			; infinity jump
 
