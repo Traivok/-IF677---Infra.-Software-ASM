@@ -1,20 +1,41 @@
 org 0x7c00
 jmp 0x0000:start
 
-num1 db 0
-num2 db 0
-
+input_msg db "Your Text: ", 0
+num times 8 db 0
+var times 8 db 0
+	
 start:
 	xor ax, ax		; init
 	mov ds, ax 		; init
 	mov es, ax 		; init
 
-	mov di, num1 		; pass num1 as arg to read	
-	call readstr 		; call read(num1)
+;;; <READ AND PRINT TEST> ;;;
+	mov si, input_msg	; print input msg
+	call printstr
 	
-	mov si, num1
+	mov di, var		; pass var as arg to readstr
+	call readstr
+
+	mov si, var		; pass var as arg to printstr
 	call printstr
 	call println
+;;; <READ AND PRINT TEST> ;;;
+	
+;;; <READ VERBOSELY TEST> ;;;
+	mov di, num		; pass num as arg to readvstr	
+	call readvstr 		; call read(num1)
+	
+	mov si, num
+	call printstr
+	call println
+;;; <\READ VERBOSELY TEST> ;;;
+
+;;; <VARIABLE CONTENT TEST> ;;;
+	mov si, var
+	call printstr
+	call println
+;;; <\VARIABLE CONTENT TEST> ;;;
 	
 	jmp done
 
