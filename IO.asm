@@ -9,14 +9,15 @@ start:
 	mov ds, ax
 	mov es, ax
 
-	mov si, num1 ;; pass num1 as arg to read
-	call read_to_si ;; call read(num1)
-	mov [num1], si
-	call print_from_si
+	mov di, num1 ;; pass num1 as arg to read
+	call readstr ;; call read(num1)
+	
+	mov si, num1
+	call printstr
 
 	jmp done
 
-read_to_si: ;;; ERROR - input not stored - ERROR ;;; 
+readstr: ;;; ERROR - input not stored - ERROR ;;; 
 
 	.start:
 		mov ah, 0 ;; read keyboard
@@ -26,7 +27,7 @@ read_to_si: ;;; ERROR - input not stored - ERROR ;;;
 		je .done ;; if (al == 'enter') return
 		jmp .output ;; else print last input 
 
-		lodsb ;; store al (key stroke) to si (arg passed)
+		stosb ;; store al (key stroke) to di (arg passed)
 
 	.output:
 		mov ah, 0xe ;; char print
@@ -45,7 +46,7 @@ read_to_si: ;;; ERROR - input not stored - ERROR ;;;
 
 		ret
 
-print_from_si:	
+printstr:	
 	.start:
 
 		lodsb ;; si -> al
