@@ -1,26 +1,11 @@
 org 0x7c00
 jmp 0x0000:start
-
-num times 8 db 0
 	
 start:
 	xor ax, ax		; init
 	mov ds, ax 		; init
 	mov es, ax 		; init	
-
-	mov si, num	
-	call readvstr
 	
-	mov edx, num
-	add eax, '0'
-	mov [si], eax
-	
-	call printstr
-	call println
-	
-	jmp done
-
-
 ;;; print string
 ;; @param: use si to print
 ;; @reg: ax, bx
@@ -91,7 +76,7 @@ readvstr:
 		ret 		; return
 	
 ;;; print line (\n)
-;;; @reg: ax, bx
+;; @reg: ax, bx
 println:
 	mov ah, 0xe ; char print
 	mov bh, 0 ; page number
@@ -108,26 +93,30 @@ println:
 	ret
 
 ;;; string to integer -- int atoi(string*) 
-;;; @param use dx as string pointer
-;;; @return ax as int result
-;;; @reg: eax, ecx, edx
+;; @param use si as string
+;; @return dl as int result
+;; @reg: ax, dx, bl, si
 atoi:
-	xor eax, eax 		; zero a "result so far"
-.top:
-	movzx ecx, byte [edx] 	; get a character
-	inc edx 		; ready for next one
-	
-	cmp ecx, '0'
-	jb .done 		; if unsigned (ecx < '0') then, invalid
+	xor ax, ax 		; init
+	mov dx, ax
+.convert:	
+	lodsb
 
-	cmp ecx, '9'		; if unsigned (ecx > '9') then, invalid
-	ja .done
+	cmp al, '0'
+	jb .done 		; character below '0'
 	
-	sub ecx, '0'		; "convert" character to number
-	imul eax, 10		; multiply "result so far" by ten
-	add eax, ecx		; add in current digit
+	cmp al, '9'
+	ja .done		; character above '9'
 
-	jmp .top		; until done
+	sub al, '0'		; convert ascii to (0-9) int
+
+	xchg dl, al 		; this swap is needed because mul
+
+	mov bl, 10		; supose 12 from 123 string was computed, then 123 = (12*10) + 3
+	mul bl			; prepare data for next unit digit
+	add dl, al		; insert new digit into data
+	
+	jmp .convert
 	
 .done:
 	ret
