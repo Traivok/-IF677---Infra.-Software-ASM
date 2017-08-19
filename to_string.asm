@@ -27,7 +27,7 @@ to_string:
 		mov di, array_string
 		stosb ; al -> di
 
-		; operação de print do caracter contido em al
+		; operação de print do character contido em al
 		mov [aux0], ax ; para não perder na operação de print
 		mov [aux1], si ; para não perder na operação de print
 		mov [aux2], di ; para não perder na operação de print
@@ -40,7 +40,7 @@ to_string:
 		mov ax, [aux0] ; recuperando o valor
 		mov si, [aux1] ; recuperando o valor
 		mov di, [aux2] ; recuperando o valor
-		; terminando a operação de print
+		; terminando a operação de print char
 
 		xchg ah, al ; ah <-> al
 		cmp al, 0 ; al == 0?
