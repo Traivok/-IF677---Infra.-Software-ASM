@@ -30,14 +30,14 @@ to_string:
 		int 10h
 		; terminando a operação de print
 
-		xor ax, ax
-		mov al, dh
-		cmp al, 0
+		xor ax, ax ; ax = 0
+		mov al, dh ; al recebe o antigo valor de ah
+		cmp al, 0 ; (al == 0) -> número todo transformado
 		jne .extract_transform
 
 	xor ax, ax ; ax = 0
 	lodsb ; si -> al
-	cmp al, 0 ; ver se chegou no fim do array_int
+	cmp al, 0 ; checa se chegou no fim do array_int
 	jne to_string
 
 done:
