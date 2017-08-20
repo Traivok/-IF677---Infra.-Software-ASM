@@ -1,7 +1,7 @@
 org 0x7c00
 jmp 0x0000:start
 
-array_int db 157, 151, 122, 77, 0
+array_int db 120, 0
 array_string times 12 db 0 ;a quantidade de caracteres do array int
 
 start:
@@ -18,8 +18,8 @@ to_string:
 		; e transforma em character
 		mov dh, 10
 		div dh ; al = ax/10 - o resto vai para ah
-		add ah, 48 ; ah += 48
-		xchg ah, al ; ah <-> al
+		add ah, '0'; ah += '0'
+		xchg ah, al; ah <-> al
 		stosb ; al -> di
 
 		mov dh, ah ; guarda o valor de ah
