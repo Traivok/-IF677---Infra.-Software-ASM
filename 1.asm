@@ -1,8 +1,11 @@
 org 0x7c00
 jmp 0x0000:start
 
-outs db "99", 0	
-eeh db "Okay.", 0
+input1 db "000", 0	
+input2 db "000", 0
+num1 times 1 db 0
+num2 times 1 db 0	
+output db "0000", 0
 	
 start:
 	xor ax, ax		; reg init
@@ -11,31 +14,30 @@ start:
 	mov ss, ax		; stack init
 	mov sp, 0x7c00		; stack init
 	
-	
-	mov ah, 0	
-	mov al, 20
-	mov di, outs
-	call tostring
+	mov di, input1 		; read first input
+	call readvstr
 
-	mov si, outs
+	mov di, input2		; read second input
+	call readvstr
+
+	mov si, input1		; convert them into number	
 	call atoi
-
-	cmp dl, 20
-	jne done	
-
-	mov si, eeh
-	call printstr
-	call println
-
-	mov ah, 0
-	mov al, dl
-	mov di, outs
+	mov byte [num1], dl	; and store the output conversion
+	
+	mov si, input2
+	call atoi
+	mov byte [num2], dl
+ 
+	mov ah, 0		; add them
+	mov al, byte [num1]	; ax = [0][num1]
+	add al, byte [num2]	; ax = ax + [0][num2]
+	mov di, output		; convert result into string
 	call tostring
 
-	mov si, outs
-	call printstr
+	mov si, output
+	call printstr		; and print it
 	call println
-	
+
 	jmp done
 	
 ;;; print string
