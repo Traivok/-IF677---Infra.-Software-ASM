@@ -189,6 +189,35 @@ tostring:
 .done:
 	ret
 	
+;;; inverts the string 
+;; @param use si as the string input
+;; @return di as the inverted string output
+;; @reg: ax, si, di
+str_inverter:
+
+	push 0 ; '\0' end of string
+
+.stack:
+
+	xor ax, ax ; ax = 0
+	lodsb ; si -> al
+	cmp al, 0
+	je .inverter ; can't put the 0 into the stack
+	push ax ; else put ax into the stack
+	jmp .stack 
+
+.inverter: 
+
+	pop ax
+	stosb ; al -> di
+	cmp al, 0 ; end of the string
+	je .done
+	jmp .inverter
+
+.done:
+
+	ret
+		
 	
 done:
 	jmp $ 			; infinity jump
