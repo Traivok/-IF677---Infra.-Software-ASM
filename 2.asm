@@ -1,9 +1,5 @@
 ;;; 2.asm -- checks if the vertices form a valid triangle
 
-;;; José R. A. Figueirôa - jraf
-	
-;;; Algorithm:
-
 ;; isValid(a, b, c):
 ;	return (a < b + c)
 
