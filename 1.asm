@@ -1,22 +1,32 @@
 org 0x7c00
 jmp 0x0000:start
 
-input1 db "000", 0	
+msg db "Addition calculator", 0
+inmsg db "INSERT: ", 0	
+input1 db "000", 0
 input2 db "000", 0
 num1 times 1 db 0
-num2 times 1 db 0	
+num2 times 1 db 0
 output db "0000", 0
 	
-start:
+start:	
 	xor ax, ax		; reg init
 	mov ds, ax 		; reg init
 	mov es, ax 		; reg init	
 	mov ss, ax		; stack init
 	mov sp, 0x7c00		; stack init
+
+	mov si, msg
+	call printstr
+	call println
 	
+	mov si, inmsg
+	call printstr
 	mov di, input1 		; read first input
 	call readvstr
 
+	mov si, inmsg
+	call printstr
 	mov di, input2		; read second input
 	call readvstr
 
@@ -160,11 +170,9 @@ atoi:
 ;; @return di as string output
 ;; @reg: ax, bl, sp, di
 tostring:
-	
 	push 0 			; push '\0' end of string
 
-.convert:			; convert every digit of integer input into characters
-	
+.convert:			; convert every digit of integer input into characters	
 	mov bl, 10		; let number = 123, then, after div, 12 will be al, and 3 will be ah
 	div bl			; so, we need to push 3 onto stack and recursively convert (number/10) until the result be zero 
 	add ah, '0'		; convert remainder to ascii...
@@ -179,7 +187,6 @@ tostring:
 	jmp .convert
 	
 .concat:			; concat every char of stack into a string
-	
 	pop ax			; get top of stack and pop it
 	
 	stosb			; store al at di
@@ -189,8 +196,7 @@ tostring:
 	jmp .concat
 	
 .done:
-	ret
-	
+	ret	
 	
 done:
 	jmp $ 			; infinity jump
