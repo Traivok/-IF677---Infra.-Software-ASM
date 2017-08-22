@@ -58,42 +58,6 @@ str_inverter:
 .done:
 
 	ret
-
-;;; integer to string -- string	to_string(int*)
-;; @param use ax as number input
-;; @return di as string output
-;; @reg: ax, bl, sp, di
-tostring:
-	
-	push 0 			; push '\0' at the end of the string
-
-.convert:			; convert every digit of integer input into characters
-	
-	mov bl, 10		; let number = 123, then, after div, 12 will be al, and 3 will be ah
-	div bl			; so, we need to push 3 onto stack and recursively convert (number/10) until the result be zero 
-	add ah, '0'		; convert remainder to ascii...
-
-	mov dl, ah		; (although the remainder is stored to ah, the stosb works with al)
-	push dx			; ...and push it	
-
-	cmp al, 0		; base case condition
-	je .concat
-	
-	mov ah, 0		; the remainder was pushed onto stack, we dont need it anymore so AX = [3, 12] -> [0, 12]
-	jmp .convert
-	
-.concat:			; concat every char of stack into a string
-	
-	pop ax			; get top of stack and pop it
-	
-	stosb			; store al at di
-	
-	cmp al, 0 		; if end of string
-	je .done		; goto done
-	jmp .concat
-	
-.done:
-	ret
 	
 ;;; print string
 ;; @param: use si to print
@@ -161,35 +125,6 @@ println:
 	int 10h ; visual interrupt	
 
 	ret
-
-;;; string to integer -- int atoi(string*) 
-;; @param use si as string
-;; @return dl as int result
-;; @reg: ax, dx, bl, si
-atoi:
-	xor ax, ax 		; init
-	mov dx, ax
-.convert:	
-	lodsb
-
-	cmp al, '0'
-	jb .done 		; character below '0'
-	
-	cmp al, '9'
-	ja .done		; character above '9'
-
-	sub al, '0'		; convert ascii to (0-9) int
-
-	xchg dl, al 		; this swap is needed because mul
-
-	mov bl, 10		; supose 12 from 123 string was computed, then 123 = (12*10) + 3
-	mul bl			; prepare data for next unit digit
-	add dl, al		; insert new digit into data
-	
-	jmp .convert
-	
-.done:
-	ret	
 	
 done:
 	jmp $ 			; infinity jump
