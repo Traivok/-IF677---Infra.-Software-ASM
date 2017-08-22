@@ -4,7 +4,7 @@ jmp 0x0000:start
 msg1 db "String Inverter", 13, 10, 0
 msg2 db "Put the string you want to invert: ", 0
 string times 100 db 0
-inverted_string times 100 db 0
+inverted_string times 100 db 0 
 	
 start:
 	xor ax, ax		; ax = 0
