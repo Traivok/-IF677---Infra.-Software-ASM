@@ -41,7 +41,7 @@ start:
 .end:
 	call printstr
 	call println
-	jmp done
+	jmp start
 	
 ;;; print string
 ;; @param: use si to print
