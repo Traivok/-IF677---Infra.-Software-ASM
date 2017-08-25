@@ -1,32 +1,72 @@
 org 0x7c00        
 jmp 0x0000:start
- 
+
+msg db "A string nao contem o caractere ", 0
+
 
 char times 2 db 0 
 string times 100 db 0
  
 start:
-    xor ax, ax  
+    xor ax, ax
+    mov cl, 0 
     mov ds, ax  
     mov es, ax
- 
+    
     mov di, string         
     call read_string
 
- 
+
     mov di, char
     call read_character
+
+    mov si, string
+    call check
+
+    cmp cl, 0
+    je fim
+
     
     mov si, string
     call remove_character
     
     jmp done
 
+fim:
+    mov si, msg
+    call print_string
+
+    mov si, char
+    call print_string
+
+    jmp done
+
+check:
+    .normal:
+        lodsb
+        cmp al, 0
+        je .done
+
+        cmp al, [char]
+        je .atribution
+
+        jmp check
+
+    .atribution:
+        add cl, 1
+        jmp .normal
+
+    .done:
+        ret
+
 read_character:
     .read:
         mov ah, 0
         int 16h  
-   
+        
+        cmp al, 0xd
+        je .done
+
         stosb
    
     .print:
@@ -34,6 +74,8 @@ read_character:
         mov bh, 0  
         mov bl, 0xf
         int 10h
+
+        jmp .read
  
     .done:
         call println  
