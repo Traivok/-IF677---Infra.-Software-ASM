@@ -1,12 +1,15 @@
 org 0x7c00
 jmp 0x0000:start
 
-string1 times 100 db 0
-string2 times 100 db 0
+string1 times 98 db 0 
+string2 times 97 db 0
 aux dw 0
 alph dw 0
-alphabeto db 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', 0
-output times 10 db 0
+str1 dw 0
+str2 dw 0
+alphabet db 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z', 0
+output times 5 db 0
+nonsense db ':', 0
 
 start:
 
@@ -22,37 +25,46 @@ start:
 	mov di, string2
 	call readvstr
 
-	mov dx, alphabeto
+	mov dx, alphabet
 	mov [alph], dx
+	mov dx, string1
+	mov [str1], dx
+	mov dx, string2
+	mov [str2], dx
 	call commonletter
 	
 	jmp done
 
-; @reg: bl, cx
-;;;;;;;;;;;;;;;;
+;;; Common letters
+;; @function: prints the common letters between two strings, in alphabetic order,
+;; and prints the difference, in absolute value, of the occurrences of these letters.
+;; @parameter: use alph as the alphabet, str1 as the first string, str2 as the 
+;; second string and output as the output number of each common letter.
+;; @return: void
+;; @reg: bx, cx, dx, si, di, ax 
 commonletter:
 
-	xor cx, cx ; contador = 0
+	xor cx, cx ; counter = 0
 	mov si, [alph]
 	lodsb
-	mov [alph], si ; atualiza a pos
+	mov [alph], si ; update the position
 
 	cmp al, 0
 	je .done
 
-	mov bl, al ; para guardar o valor
+	mov bl, al ; to keep the value of al 
 
-	mov si, string1
+	mov si, [str1]
 	call stringSum
 
-	cmp cx, 0 ; se for zero é pq a letra não está na string1
+	cmp cx, 0 ; if it equals zero, there's no such letter in the first string 
 	je commonletter
 
-	mov [aux], cx
-	mov si, string2 ; else eu procuro da string2
+	mov [aux], cx ; to keep the value of cx before stringSub
+	mov si, [str2] ; else search in the second string
 	call stringSub
 
-	cmp cx, [aux] ; se for igual, é pq não tem na string2
+	cmp cx, [aux] ; if it's equal, there's no such letter in the second string
 	je commonletter
 
 	;else print char
@@ -62,23 +74,25 @@ commonletter:
 	mov bl, 0xf 	; white color
 	int 10h 	; video interrupt
 
-	xor ax, ax ; ax = 0
-
 .negativeDealing:
 	
 	mov ax, -1
-	imul cx ; multiplica cx por -1
-	mov cx, ax ; o resultado da multiplicação vai para ax
+	imul cx ; cx*al == cx*(-1)
+	mov cx, ax ; the multiplication result goes to ax
 	cmp cx, 0 
 	jl .negativeDealing
 
-	;transformar o q tem em cx para string e printar
-	mov ax, cx
+	;ax has the last value of cx
+	;turns cx into a string and prints
 	mov di, output
 	call tostring
 
+	mov si, nonsense
+	call printstr
+
 	mov si, output
 	call printstr
+	call println
 
 	jmp commonletter
 
@@ -86,19 +100,21 @@ commonletter:
 
 	ret
 
-;; bl tem a letra que eu estou procurando
-;; percorre a string e aumenta o contador a cada letra achada
+;;; Counts how many times the letter (in bl) shows up in the string 
+;; @param bl as the searched letter, cx as the counter
+;; @return cx as the number of times the letter showed up in the string 
+;; @reg: ax, cx, bl
 stringSum:
 	
 	lodsb
 
-	cmp al, 0 ; vê se chegou no fim
+	cmp al, 0 ; (al == 0) -> end of string
 	je .done
 
 	cmp al, bl
-	jne stringSum ; se não for igual, procuro na próxima letra
+	jne stringSum ; if it's not equal, search in another letter 
 
-	inc cx ; contador++
+	inc cx ; counter++
 
 	jmp stringSum
 
@@ -106,19 +122,21 @@ stringSum:
 
 	ret
 
-;; bl tem a letra que eu estou procurando
-;; percorre a string e subtrai o contador
+;;; Subtracts from cx the times the letter (in bl) shows up in the string 
+;; @param bl as the searched letter, cx as the counter
+;; @return cx as the difference, in absolute value, of the occurrences of a letter.
+;; @reg: ax, cx, bl
 stringSub:
 	
 	lodsb
 
-	cmp al, 0 ; vê se chegou no fim
+	cmp al, 0 ; (al == 0) -> end of string
 	je .done
 
 	cmp al, bl
-	jne stringSub ; se não for igual, procuro na próxima letra
+	jne stringSub ; if it's not equal, search in another letter 
 
-	dec cx ; contador++
+	dec cx ; counter++
 
 	jmp stringSub
 
