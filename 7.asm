@@ -62,7 +62,15 @@ commonletter:
 	mov bl, 0xf 	; white color
 	int 10h 	; video interrupt
 
-	;falta transformar o cx para q seja sempre positivo
+	xor ax, ax ; ax = 0
+
+.negativeDealing:
+	
+	mov ax, -1
+	imul cx ; multiplica cx por -1
+	mov cx, ax ; o resultado da multiplicação vai para ax
+	cmp cx, 0 
+	jl .negativeDealing
 
 	;transformar o q tem em cx para string e printar
 	mov ax, cx
