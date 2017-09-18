@@ -1,8 +1,7 @@
 org 0x7c00
 jmp 0x0000:start
 
-outs db "99", 0	
-eeh db "Okay.", 0
+teststr db "Hello, world! abcd yz A..Z", 0
 	
 start:
 	xor ax, ax		; reg init
@@ -10,31 +9,13 @@ start:
 	mov es, ax 		; reg init	
 	mov ss, ax		; stack init
 	mov sp, 0x7c00		; stack init
-	
-	
-	mov ah, 0	
-	mov al, 20
-	mov di, outs
-	call tostring
 
-	mov si, outs
-	call atoi
+	mov si, teststr
+	mov di, teststr
+	call toUpper
 
-	cmp dl, 20
-	jne done	
-
-	mov si, eeh
+	mov si, teststr
 	call printstr
-	call println
-
-	mov ah, 0
-	mov al, dl
-	mov di, outs
-	call tostring
-
-	mov si, outs
-	call printstr
-	call println
 	
 	jmp done
 	
@@ -217,7 +198,35 @@ str_inverter:
 .done:
 
 	ret
-		
+
+;;; Set lowercase letters to uppercase
+;; @param: si, the source string
+;; @ret: di, the output string
+;; @reg: al
+toUpper:
+	lodsb 			; get a char of input string
+	
+	cmp al, 0		; check if its the end of string
+	je .done		; in case of that, go to done
+
+	; checking if the char is in [a,z] interval
+	cmp al, 'a'
+	jb .store
+
+	cmp al, 'z'
+	ja .store 	; if it's, process it
+
+	jmp .convert	; else, convert to upperCase
+
+	.convert:
+		add al, -32 	; a - A is 32, so subtract 32 from al
+		jmp .store 		; and store it
+	.store:
+		stosb
+		jmp toUpper
+	.done:
+		ret
+
 	
 done:
 	jmp $ 			; infinity jump
